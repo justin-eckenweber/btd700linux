@@ -1,13 +1,28 @@
 #!/usr/bin/env python3
-"""Install a launcher for this checkout, without root or system packages."""
-from pathlib import Path
+"""Install/remove a launcher for this checkout, without root or system packages."""
+import argparse
 import os
-from btd700.integration import APP_ID, desktop_entry
+from pathlib import Path
+from btd700.i18n import tr
+from btd700.integration import APP_ID, autostart_path, desktop_entry
 
-base = Path(os.environ.get('XDG_DATA_HOME', Path.home() / '.local/share'))
-applications = base / 'applications'
-applications.mkdir(parents=True, exist_ok=True)
-destination = applications / f'{APP_ID}.desktop'
-destination.write_text(desktop_entry())
-print(f'Installiert: {destination}')
-print('Im Anwendungsmenü „BTD 700 Control“ öffnen. Der Projektordner muss erhalten bleiben.')
+
+def main():
+    parser = argparse.ArgumentParser(description='Add or remove the BTD 700 Control application-menu entry.')
+    parser.add_argument('--uninstall', action='store_true', help='Remove the launcher and start-at-login entry')
+    args = parser.parse_args()
+    base = Path(os.environ.get('XDG_DATA_HOME', Path.home() / '.local/share'))
+    destination = base / 'applications' / f'{APP_ID}.desktop'
+    if args.uninstall:
+        destination.unlink(missing_ok=True)
+        autostart_path().unlink(missing_ok=True)
+        print(tr('Menüeintrag und Autostart entfernt. Der Projektordner bleibt erhalten.'))
+        return
+    destination.parent.mkdir(parents=True, exist_ok=True)
+    destination.write_text(desktop_entry())
+    print(tr('Installiert: {path}').format(path=destination))
+    print(tr('Im Anwendungsmenü „BTD 700 Control“ öffnen. Der Projektordner muss erhalten bleiben.'))
+
+
+if __name__ == '__main__':
+    main()

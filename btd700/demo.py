@@ -1,4 +1,5 @@
 """Explicit, isolated demonstration device; never opens USB."""
+from .i18n import tr
 from .protocol import Command as C, encode
 
 
@@ -30,7 +31,7 @@ class DemoTransport:
         elif command == C.FACTORY_RESET:
             self.__init__()
         else:
-            raise TimeoutError('Nicht unterstützte Demo-Abfrage')
+            raise TimeoutError(tr('Nicht unterstützte Demo-Abfrage'))
         return b''
 
     def close(self):

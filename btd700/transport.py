@@ -1,4 +1,5 @@
 """Linux hidraw access, limited to the BTD 700 control interface."""
+from .i18n import tr
 from dataclasses import dataclass
 from pathlib import Path
 import fcntl
@@ -49,14 +50,14 @@ class Hidraw:
             fcntl.ioctl(self.fd, 0x80084803, info, True)  # HIDIOCGRAWINFO
             bus, vendor, product = struct.unpack('IHH', info)
             if (bus, vendor, product) != (3, 0x3542, 0x3001):
-                raise DeviceError('Gerätepfad gehört nicht mehr zum BTD 700.')
+                raise DeviceError(tr('Gerätepfad gehört nicht mehr zum BTD 700.'))
             try:
                 fcntl.flock(self.fd, fcntl.LOCK_EX | fcntl.LOCK_NB)
             except BlockingIOError as exc:
-                raise DeviceError('Der Dongle ist bereits in einer anderen Instanz geöffnet.') from exc
+                raise DeviceError(tr('Der Dongle ist bereits in einer anderen Instanz geöffnet.')) from exc
         except PermissionError as exc:
             self.close()
-            raise DeviceError('USB-Zugriff fehlt. Die mitgelieferte udev-Regel installieren und den Dongle neu einstecken.') from exc
+            raise DeviceError(tr('USB-Zugriff fehlt. Die mitgelieferte udev-Regel installieren und den Dongle neu einstecken.')) from exc
         except BaseException:
             self.close()
             raise
@@ -74,16 +75,16 @@ class Hidraw:
 
     def _write(self, report):
         if self.fd is None:
-            raise DeviceError('Dongle ist nicht geöffnet.')
+            raise DeviceError(tr('Dongle ist nicht geöffnet.'))
         if not select.select([], [self.fd], [], self.timeout)[1]:
-            raise TimeoutError('USB-Schreibzugriff hat nicht geantwortet.')
+            raise TimeoutError(tr('USB-Schreibzugriff hat nicht geantwortet.'))
         if os.write(self.fd, report) != len(report):
-            raise DeviceError('Unvollständiger USB-Schreibvorgang.')
+            raise DeviceError(tr('Unvollständiger USB-Schreibvorgang.'))
 
     def _receive(self):
         report = os.read(self.fd, 1024)
         if not report:
-            raise DeviceError('Dongle wurde entfernt.')
+            raise DeviceError(tr('Dongle wurde entfernt.'))
         message = decode(report)
         if message and message.kind == 0xFC and message.command in EVENTS:
             self.events[message.command] = message.payload
@@ -107,9 +108,9 @@ class Hidraw:
                 message = self._receive()
                 if message and message.kind == 0xFF and message.command == command:
                     if len(message.payload) < MIN_LENGTHS.get(command, 0):
-                        raise ProtocolError(f'Unvollständige Antwort auf {command.name}.')
+                        raise ProtocolError(tr('Unvollständige Antwort auf {command}.').format(command=command.name))
                     return message.payload
-            raise TimeoutError(f'Der Dongle antwortet nicht auf {command.name}.')
+            raise TimeoutError(tr('Der Dongle antwortet nicht auf {command}.').format(command=command.name))
         except (OSError, ProtocolError):
             self.close()
             raise

@@ -1,4 +1,5 @@
 """Device operations with readback and capability checks."""
+from .i18n import tr
 from dataclasses import asdict, dataclass
 import time
 
@@ -31,8 +32,8 @@ class Status:
 
     @property
     def quality(self):
-        bits = {1: '16 Bit', 2: '24 Bit'}.get(self.resolution, '—')
-        frequency = {1: '44,1 kHz', 2: '48 kHz', 3: '96 kHz'}.get(self.frequency, '—')
+        bits = {1: tr('16 Bit'), 2: tr('24 Bit')}.get(self.resolution, '—')
+        frequency = {1: tr('44,1 kHz'), 2: '48 kHz', 3: '96 kHz'}.get(self.frequency, '—')
         return f'{bits} / {frequency}'
 
     @property
@@ -43,10 +44,10 @@ class Status:
 
     def public_dict(self):
         result = asdict(self)
-        result.update(state_name=STATES.get(self.state, f'Unbekannt ({self.state})'),
-                      mode_name=MODES.get(self.mode, f'Unbekannt ({self.mode})'),
+        result.update(state_name=tr(STATES.get(self.state, tr('Unbekannt ({value})').format(value=self.state))),
+                      mode_name=tr(MODES.get(self.mode, tr('Unbekannt ({value})').format(value=self.mode))),
                       codec_name=self.codec_name, audio_quality=self.quality,
-                      transport_name=TRANSPORTS.get(self.transport, f'Unbekannt ({self.transport})'))
+                      transport_name=tr(TRANSPORTS.get(self.transport, tr('Unbekannt ({value})').format(value=self.transport))))
         return result
 
 
@@ -70,7 +71,7 @@ class Controller:
             try:
                 self.firmware = '.'.join(map(str, q(C.GET_VERSION)[:3]))
             except TimeoutError:
-                self.firmware = 'Unbekannt'
+                self.firmware = tr('Unbekannt')
         # Firmware 3.11 does not respond to GET_GAMING; use events/fallback,
         # matching the original application's capability logic.
         event = self.transport.events.get(23, b'')
@@ -87,20 +88,20 @@ class Controller:
             if matches:
                 return
             if time.monotonic() >= deadline:
-                raise DeviceError('Der Dongle hat die angeforderte Einstellung nicht bestätigt. Bitte den aktuellen Status prüfen.')
+                raise DeviceError(tr('Der Dongle hat die angeforderte Einstellung nicht bestätigt. Bitte den aktuellen Status prüfen.'))
             time.sleep(0.15)
 
     def set_mode(self, mode: int, transport: int | None = None):
         status = self.snapshot()
         if mode not in MODES:
-            raise ValueError('Unbekannter Audiomodus.')
+            raise ValueError(tr('Unbekannter Audiomodus.'))
         if mode == 1 and not status.gaming_allowed:
-            raise ValueError('Gaming ist für die aktuelle Verbindung nicht verfügbar.')
+            raise ValueError(tr('Gaming ist für die aktuelle Verbindung nicht verfügbar.'))
         selected = status.transport if transport is None else transport
         if selected not in (1, 2, 3):
-            raise ValueError('Unbekannter Bluetooth-Transport.')
+            raise ValueError(tr('Unbekannter Bluetooth-Transport.'))
         if transport is not None and selected in (1, 2) and status.transports and not status.transports & selected:
-            raise ValueError('Die Kopfhörer unterstützen diesen Transport nicht.')
+            raise ValueError(tr('Die Kopfhörer unterstützen diesen Transport nicht.'))
         payload = bytes((mode, selected))
         self.transport.request(C.SET_MODE, payload)
         self._verify(C.GET_MODE, payload, exact=False)
@@ -108,9 +109,9 @@ class Controller:
     def set_codec(self, codec: int):
         status = self.snapshot()
         if status.mode != 0 or status.state < 2:
-            raise ValueError('Codec-Auswahl benötigt verbundene Kopfhörer im Standard-Modus.')
+            raise ValueError(tr('Codec-Auswahl benötigt verbundene Kopfhörer im Standard-Modus.'))
         if codec not in CODECS or not status.codecs & codec:
-            raise ValueError('Dieser Codec wird für die aktuelle Verbindung nicht angeboten.')
+            raise ValueError(tr('Dieser Codec wird für die aktuelle Verbindung nicht angeboten.'))
         payload = bytes((codec,))
         self.transport.request(C.SET_CODEC, payload)
         self._verify(C.GET_CODEC, payload)
@@ -123,7 +124,7 @@ class Controller:
             if (state >= 2) == connected:
                 return
             if time.monotonic() >= deadline:
-                raise DeviceError('Verbindung wurde angefordert, aber noch nicht bestätigt. Sind die gekoppelten Kopfhörer eingeschaltet?')
+                raise DeviceError(tr('Verbindung wurde angefordert, aber noch nicht bestätigt. Sind die gekoppelten Kopfhörer eingeschaltet?'))
             time.sleep(0.25)
 
     def set_broadcast(self, *, name=None, password=None, public=None, quality=None, encrypted=None):
@@ -131,9 +132,9 @@ class Controller:
         name_data = validate_text(name) if name is not None else None
         key_data = validate_text(password, key=True) if password is not None else None
         if any(value is not None and not isinstance(value, bool) for value in (public, encrypted)):
-            raise ValueError('Auracast-Schalter benötigen einen booleschen Wert.')
+            raise ValueError(tr('Auracast-Schalter benötigen einen booleschen Wert.'))
         if quality is not None and quality not in (0, 1, 2):
-            raise ValueError('Unbekannte Auracast-Qualität.')
+            raise ValueError(tr('Unbekannte Auracast-Qualität.'))
         before = self.snapshot()
         info = [before.broadcast_public, before.broadcast_quality, before.broadcast_encrypted]
         if public is not None:
@@ -145,11 +146,11 @@ class Controller:
         if encrypted is not None:
             info[2] = int(encrypted)
         if info[2] and key_data == b'':
-            raise ValueError('Verschlüsselung benötigt ein Passwort mit 4–16 Zeichen.')
+            raise ValueError(tr('Verschlüsselung benötigt ein Passwort mit 4–16 Zeichen.'))
         if info[2] and key_data is None:
             existing = self.transport.request(C.GET_KEY).rstrip(b'\0')
             if len(existing) < 4:
-                raise ValueError('Bitte zuerst ein Passwort mit 4–16 Zeichen eingeben.')
+                raise ValueError(tr('Bitte zuerst ein Passwort mit 4–16 Zeichen eingeben.'))
         # Preserve the original settings while changing a key, then write
         # key, name, and final settings in the order used by the original app.
         try:
@@ -169,9 +170,9 @@ class Controller:
         except Exception as exc:
             # Do not silently repeat writes or claim atomicity: settings persist
             # independently on the dongle.
-            raise DeviceError('Auracast wurde nur teilweise oder nicht übernommen. Aktuellen Namen und Passwortschutz prüfen.') from exc
+            raise DeviceError(tr('Auracast wurde nur teilweise oder nicht übernommen. Aktuellen Namen und Passwortschutz prüfen.')) from exc
 
     def factory_reset(self, *, confirmed=False):
         if not confirmed:
-            raise ValueError('Zurücksetzen muss ausdrücklich bestätigt werden; alle Kopplungen werden gelöscht.')
+            raise ValueError(tr('Zurücksetzen muss ausdrücklich bestätigt werden; alle Kopplungen werden gelöscht.'))
         self.transport.request(C.FACTORY_RESET)

@@ -1,0 +1,17 @@
+# Changelog
+
+## 0.2.0 — 2026-09-05
+
+- English and German app, tray, CLI help and error messages, selected by system
+  locale or `--language` / `BTD700_LANGUAGE`.
+- English README with genuine app screenshots and a separate German guide.
+- MIT license, AI-development disclosure and explicit no-warranty statement.
+- Public installation, uninstall, contribution and compatibility documentation.
+- Automated protocol/localization tests on GitHub; no hardware writes in CI.
+
+## 0.1.0 — 2026-09-05
+
+- Initial GTK 4 / libadwaita control app and StatusNotifier tray menu.
+- Audio modes, codec/transport selection, connection and Auracast settings.
+- Independent HID control protocol implementation; no firmware updater.
+- Real-device status reads and demo-backed UI verification on Bazzite/GNOME.

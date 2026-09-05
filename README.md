@@ -1,101 +1,186 @@
-# BTD 700 Control für Linux
+<p align="center">
+  <img src="packaging/btd700-control.svg" width="80" alt="BTD 700 Control icon">
+</p>
 
-Native GTK-4-App zur Steuerung des **Sennheiser BTD 700**, mit einem Menü im
-Infobereich von GNOME/KDE. Eigenständige Implementierung des HID-Steuerprotokolls,
-analysiert anhand der offiziellen Windows-Anwendung **Dongle Control 1.0.5**.
+<h1 align="center">BTD 700 Control for Linux</h1>
 
-**Keine Firmware-Updates, Firmware-Downloads oder Update-Schnittstellen.** Die App
-benötigt weder Windows/Wine noch eine Netzwerkverbindung. Sennheiser-Programmcode,
-Logos und Firmware werden nicht mitgeliefert. Dies ist ein unabhängiges Projekt.
+<p align="center">Your dongle. Your codecs. A native Linux app and system tray menu.</p>
 
-## Starten
+<p align="center">
+  <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-blue" alt="MIT license"></a>
+  <img src="https://img.shields.io/badge/platform-Linux-informational" alt="Linux">
+  <img src="https://img.shields.io/badge/UI-English%20%2F%20Deutsch-green" alt="English and German interface">
+  <a href="https://github.com/justin-eckenweber/btd700linux/actions/workflows/tests.yml"><img src="https://github.com/justin-eckenweber/btd700linux/actions/workflows/tests.yml/badge.svg" alt="Tests"></a>
+</p>
+
+<p align="center">
+  <a href="#install">Install</a> ·
+  <a href="https://github.com/justin-eckenweber/btd700linux/archive/refs/tags/v0.2.0.zip">Download source v0.2.0</a> ·
+  <a href="README.de.md">Deutsche Anleitung</a> ·
+  <a href="https://github.com/justin-eckenweber/btd700linux/issues">Report an issue</a>
+</p>
+
+An independent, open-source control app for the **Sennheiser BTD 700** USB Bluetooth
+transmitter. Choose audio modes and codecs, manage the headphone connection, and
+configure Auracast without Windows or Wine. Built with Python, GTK 4 and libadwaita.
+
+**Controls only. No firmware updates, firmware downloads or update mode.** Once
+installed, the app works offline and does not send telemetry.
+
+> **AI-developed · Experimental · No warranty**
+>
+> This project was developed with AI (OpenAI Codex), including protocol research,
+> implementation, documentation and tests. It is an independent community project,
+> not official Sennheiser software. **There is no guarantee that it will work with
+> your hardware, firmware or Linux setup.** It is provided as is, without warranty,
+> under the [MIT license](LICENSE). Use it at your own risk.
+
+## Screenshots
+
+Actual application windows on Linux, using **fictional demo data**. No mockups or
+AI-generated images. The app follows your desktop's light/dark appearance.
+
+<p align="center">
+  <img src="docs/screenshots/main-window.png" width="46%" alt="English app: active codec, audio mode and headphone connection">
+  <img src="docs/screenshots/auracast-settings.png" width="46%" alt="English app: Auracast name, password protection, broadcast quality and startup settings">
+</p>
+
+## What you can control
+
+| Feature | Window | System tray |
+|---|:---:|:---:|
+| Standard, Gaming and Auracast modes | ✓ | ✓ |
+| Active codec, audio format and connection status | ✓ | ✓ |
+| Codec selection supported by the current connection | ✓ | ✓ |
+| Bluetooth Classic, LE Audio or automatic transport | ✓ | ✓ |
+| Connect / disconnect previously paired headphones | ✓ | ✓ |
+| Auracast discovery, quality and password protection | ✓ | ✓ |
+| Auracast name and password | ✓ | Opens the editor |
+| Factory reset, with confirmation | ✓ | Opens confirmation |
+
+The tray menu stays available when you close the window. On GNOME, it uses the
+same StatusNotifier/AppIndicator mechanism as apps such as Discord and JetBrains
+Toolbox. Use **Quit** to close the app completely. Without a tray host, closing the
+window quits the app instead.
+
+## Install
+
+Version **0.2.0** is distributed as source. You do not need to compile the app or
+install Python packages with pip. There is currently no AppImage, Flatpak or
+self-contained binary download.
+
+### 1. Install the system libraries
+
+Requirements: **Python 3.10+**, PyGObject, **GTK 4.10+**, **libadwaita 1.5+** and
+libdbusmenu with GObject introspection. A graphical desktop session is needed for
+the window and tray; the CLI only needs Python's standard library.
+
+**Ubuntu 24.04+ / Debian with sufficiently recent GTK and libadwaita:**
 
 ```bash
+sudo apt install git python3 python3-gi gir1.2-gtk-4.0 gir1.2-adw-1 gir1.2-dbusmenu-glib-0.4
+```
+
+**Fedora Workstation:**
+
+```bash
+sudo dnf install git python3 python3-gobject gtk4 libadwaita libdbusmenu
+```
+
+**Bazzite / other immutable desktops:** try running the app first. The tested
+Bazzite system already included every required library. The Fedora command above
+is for a mutable Fedora installation, not an instruction to layer packages on Bazzite.
+
+On **GNOME**, enable a StatusNotifier/AppIndicator extension if you do not already
+have a working tray, for example
+[AppIndicator and KStatusNotifierItem Support](https://extensions.gnome.org/extension/615/appindicator-support/).
+KDE Plasma provides a tray host. Other desktops may work but have not been tested.
+
+Package references: [Fedora libdbusmenu](https://packages.fedoraproject.org/pkgs/libdbusmenu/libdbusmenu/),
+[Ubuntu introspection package](https://packages.ubuntu.com/noble/gir1.2-dbusmenu-glib-0.4).
+
+### 2. Download and run
+
+```bash
+git clone https://github.com/justin-eckenweber/btd700linux.git
+cd btd700linux
 ./run.sh
 ```
 
-Das Fenster zeigt den echten Dongle-Status. Beim Schließen bleibt die App im
-Infobereich aktiv. „Beenden“ im Symbolmenü oder das Beenden-Symbol im Fenster
-beendet die App vollständig. Wenn der Desktop keinen Infobereich anbietet,
-beendet das Schließen des Fensters die App.
+Or [download the v0.2.0 source ZIP](https://github.com/justin-eckenweber/btd700linux/archive/refs/tags/v0.2.0.zip),
+extract it, and run `bash run.sh` inside the extracted folder.
+
+Want to explore without touching any hardware?
 
 ```bash
-python3 install.py       # Anwendungsmenü-Eintrag für diesen Projektordner
-./run.sh --background   # Nur im Infobereich starten
-./run.sh --demo         # Simulierter Dongle, keinerlei USB-Zugriff
+./run.sh --demo
 ```
 
-Den Projektordner nach der Installation behalten. „Beim Anmelden starten“ in der
-App aktiviert bei Bedarf den Autostart im Infobereich. Er ist standardmäßig aus.
-
-## Steuerung
-
-- **Standard / Gaming / Auracast** direkt im Fenster oder Symbolmenü wählen.
-- Aktiven **Codec, Auflösung, Abtastrate und Verbindungsstatus** ablesen.
-- **Codecs** auswählen, die der Dongle für die aktuelle Verbindung meldet.
-  Die Auswahl steht im Standard-Modus zur Verfügung; Gaming setzt seinen Codec selbst.
-- **Bluetooth Classic / LE Audio / Automatisch** auswählen, entsprechend den
-  vom angeschlossenen Kopfhörer gemeldeten Möglichkeiten.
-- Bereits gekoppelte Kopfhörer **verbinden / trennen**.
-- **Auracast:** Name, Passwortschutz, öffentliche Auffindbarkeit und Qualität.
-  Das Symbolmenü bietet Schalter und Untermenüs; für Name/Passwort öffnet es die Eingabe im Fenster.
-- **Werkseinstellungen** nur nach ausdrücklicher Bestätigung im Dialog. Dabei
-  werden die Kopplungen gelöscht. Die App führt niemals automatisch einen Reset aus.
-
-Das Passwort wird verdeckt eingegeben und weder gespeichert noch protokolliert.
-Ein leeres Passwortfeld behält das bisherige Passwort; „Passwortschutz“ ausschalten
-sendet ohne Passwortschutz. Der Name erlaubt 4–16 ASCII-Buchstaben/Ziffern mit
-inneren Leerzeichen; ein leerer Name stellt den Gerätenamen wieder her. Passwörter
-verwenden 4–16 ASCII-Buchstaben/Ziffern, entsprechend den Original-Eingabegrenzen.
-
-**„Öffentlich auffindbar“ ist die Auracast-Ankündigung, kein Ein/Aus-Schalter für
-Audio.** Zum Starten/Beenden der Übertragung den Audiomodus umstellen.
-Die angezeigten Bit-/kHz-Werte stammen vom Dongle. Die USB-Abtastrate wird vom
-Audiosystem (z. B. PipeWire) bestimmt und ist kein hier nachgewiesener Stellbefehl.
-Koppeln erfolgt über die Taste am Dongle; „Verbinden“ versucht die bestehende Kopplung.
-
-## Voraussetzungen
-
-Python ≥ 3.10, PyGObject, GTK ≥ 4.10, libadwaita ≥ 1.5 und libdbusmenu mit
-GObject-Introspection. Auf dem hier verwendeten Bazzite sind die benötigten
-Bibliotheken bereits vorhanden; keine zusätzlichen Pakete waren erforderlich.
-
-Für andere Systeme typischerweise:
+### 3. Add it to your application menu
 
 ```bash
-# Fedora (klassisch, veränderliches System)
-sudo dnf install python3-gobject gtk4 libadwaita libdbusmenu
-
-# Debian / Ubuntu
-sudo apt install python3-gi gir1.2-gtk-4.0 gir1.2-adw-1 gir1.2-dbusmenu-glib-0.4
+python3 install.py
 ```
 
-Auf GNOME muss der Desktop StatusNotifier/AppIndicator-Symbole unterstützen;
-beispielsweise mit „AppIndicator and KStatusNotifierItem Support“. Auf dem
-getesteten GNOME ist derselbe Dienst bereits für JetBrains Toolbox und andere Apps aktiv.
-KDE stellt diese Schnittstelle über seinen Infobereich bereit.
+Open **BTD 700 Control** from the application menu. Keep the downloaded project
+folder in place: the launcher points to it. Enable **Start at login** inside the
+app if you want it to start quietly in the tray. Autostart is off by default.
 
-Fehlt die Menü-Bibliothek, bleibt das Fenster nutzbar. Das Terminalinterface
-benötigt ausschließlich die Python-Standardbibliothek.
+```bash
+./run.sh --background       # Start directly in the tray
+python3 install.py --uninstall  # Remove launcher and autostart entry
+```
 
-## USB-Zugriff
+### USB permissions
 
-Es wird ausschließlich die passende HID-Steuerschnittstelle des Geräts
-`3542:3001` geöffnet, identifiziert über ihren Report-Deskriptor. Die zweite
-Schnittstelle für Updates bleibt geschlossen. Audiotreiber werden nicht getrennt.
-
-Falls die App fehlende Berechtigungen meldet:
+If the app reports that USB access is denied:
 
 ```bash
 sudo install -m 0644 packaging/70-btd700-control.rules /etc/udev/rules.d/70-btd700-control.rules
 sudo udevadm control --reload-rules
 ```
 
-Anschließend den Dongle aus- und wieder einstecken. Die Regel beschränkt den Zugriff
-auf die Steuerungsschnittstelle und den aktiven lokalen Benutzer. Die App nicht
-als root starten. Auf dem getesteten System ist bereits Zugriff vorhanden.
+Unplug and reconnect the dongle afterwards. The rule grants the active local user
+access to the **control interface** of USB device `3542:3001`; it excludes the second
+interface used for updates. Run the app as your normal user, not with `sudo`.
+No audio driver is detached or replaced.
 
-## Terminal
+## English and German
+
+The app, tray, CLI help and application error messages follow the system language:
+German for German locales, English otherwise. You can override this explicitly:
+
+```bash
+./run.sh --language en
+./run.sh --language de
+BTD700_LANGUAGE=en ./run.sh --background
+```
+
+Quit an already running instance before changing the language; launching it again
+normally brings the existing window to the front.
+
+## Using the controls
+
+- **Codecs:** the dongle reports the choices available for the current connection.
+  Select a codec in Standard mode; Gaming mode manages its own codec. A codec
+  supported in principle is not necessarily offered with every pair of headphones.
+- **Audio format:** bit depth and sample rate are read from the dongle. Set the USB
+  output sample rate in your audio system, such as PipeWire; this app does not
+  force 96 kHz or claim bit-perfect or lossless transmission.
+- **Pairing:** use the physical dongle button to pair headphones. **Connect** reuses
+  an existing pairing.
+- **Auracast:** select Auracast mode to start broadcasting. **Publicly discoverable**
+  controls advertising/discovery, not whether audio is transmitted.
+- **Name and password:** 4–16 ASCII letters/digits; names may contain internal
+  spaces. An empty name restores the device's default name. Leave the password
+  field blank to keep the current password; turn off Password protection to
+  broadcast without it. Passwords are not stored on disk or included in status output.
+- **Factory reset:** deletes saved settings and pairings. It always requires
+  confirmation in the UI.
+
+## Command line
+
+Quit the tray app before using the CLI: one instance owns the dongle at a time.
 
 ```bash
 ./run.sh devices
@@ -106,43 +191,59 @@ als root starten. Auf dem getesteten System ist bereits Zugriff vorhanden.
 ./run.sh codec adaptive
 ./run.sh disconnect
 ./run.sh connect
-./run.sh auracast --name 'Wohnzimmer' --quality high --public on
-./run.sh auracast --password --encryption on  # Passwort verdeckt abfragen
+./run.sh auracast --name 'Living Room' --quality high --public on
+./run.sh auracast --password --encryption on  # Hidden password prompt
 ./run.sh mode auracast
 ```
 
-`status` gibt JSON aus und liest kein Passwort. Nur eine Instanz darf den Dongle
-halten: Vor CLI-Befehlen eine laufende GUI über „Beenden“ schließen. Mehrere Dongles
-lassen sich mit `--device /dev/hidrawN` vor dem Unterbefehl auswählen.
+`status` prints JSON without reading a password. With multiple dongles, place
+`--device /dev/hidrawN` before the subcommand; use the path reported by `devices`.
+The numeric fields in JSON retain their protocol meanings across languages.
 
-## Verifikation
+## Compatibility and limitations
+
+Developed and tested on **Bazzite / GNOME with a BTD 700 running firmware 3.11.0**.
+The owner confirmed that the app works with their dongle. That is not a complete
+compatibility matrix or a guarantee for other firmware and receivers.
+
+- Real hardware: device discovery, state/configuration reads, native window and
+  tray integration verified.
+- Automated tests: protocol parsing, allowed commands, readback, input validation,
+  localization and demo-backed GTK/D-Bus menu interactions.
+- Still needed: systematic hardware write tests, more receivers/firmware versions,
+  other desktops, and independent testing by more users.
+- BTD 600 and other Sennheiser devices are **not supported** by this driver.
+- Reconfiguring modes or broadcasts can interrupt audio. Multi-step settings are
+  not atomic; unplugging the dongle midway can leave partially applied changes.
+
+[Validation notes](docs/VALIDATION.md) · [Protocol and research sources](docs/PROTOCOL.md)
+
+## Contribute
+
+Bug reports, compatibility reports, translations and reviewed patches are welcome.
+See [CONTRIBUTING.md](CONTRIBUTING.md) for what to include and how to run tests.
+Please do not attach broadcast passwords, device serial numbers, original vendor
+executables or firmware images.
 
 ```bash
 python3 -m unittest discover -s tests -v
-python3 tools/check_gui.py
+BTD700_LANGUAGE=en python3 tools/check_gui.py  # Desktop session; simulated dongle
+BTD700_LANGUAGE=de python3 tools/check_gui.py
+python3 tools/capture_screenshots.py          # Regenerate the README screenshots
 ```
 
-`check_gui.py` verwendet **ausschließlich einen simulierten Dongle**, öffnet eine
-Demo-Oberfläche in der bestehenden Sitzung und prüft die Menüaktionen über den
-echten D-Bus-Menüexport. Es speichert Fensterbilder unter `/tmp/btd700-gui-test*.png`.
+The separate `tools/check_hardware.py --run` is an opt-in hardware test that changes
+settings, including the broadcast password, and attempts to restore the originals.
+It is never run by CI or the demo tests. Read it before deliberately using it.
 
-Nachgewiesen am angeschlossenen BTD 700 mit Firmware **3.11.0**:
+## License and independence
 
-- Erkennung und Öffnen der korrekten HID-Schnittstelle ohne Treiberwechsel.
-- Echte Antworten auf Status-, Modus-, Codec-, Audioqualitäts-, LE-Zustands-,
-  Transport-, Auracast-Konfigurations-, Namens- und Firmwareversionsabfragen.
-- Anzeige im GTK-Fenster und Registrierung im GNOME-Infobereich.
+The project's own code and documentation are licensed under **[MIT](LICENSE)**.
+The AI-development and no-warranty notice above is intentional; please keep it
+visible when describing this project.
 
-Schreibbefehle wurden aus der Originalsoftware rekonstruiert und in Simulation
-geprüft. Der Nutzer hat die Funktion der App am eigenen Dongle bestätigt. Eine
-Aufschlüsselung aller dabei getesteten Funktionen liegt nicht vor; der automatisierte
-Hardware-Umschalttest wurde bisher nicht ausgeführt.
-
-Das vorbereitete `tools/check_hardware.py --run` schaltet Modi und Codec um,
-prüft Auracast-Werte und versucht anschließend die gesicherten Originalwerte
-wiederherzustellen. Es führt weder Firmware-Updates noch einen Werksreset aus.
-Den Hardwaretest nur bewusst starten: Er unterbricht kurz die Audiowiedergabe
-und verändert vorübergehend gespeicherte Einstellungen einschließlich des Passworts. Bei USB-Trennung während
-einer Änderung ist eine Wiederherstellung nicht garantiert.
-
-Protokoll, Herkunft und bekannte Grenzen: [docs/PROTOCOL.md](docs/PROTOCOL.md).
+Sennheiser, BTD 700, aptX and Auracast names identify the compatible product and
+technologies. This project is not affiliated with, endorsed by or supported by
+Sennheiser, Sonova or Qualcomm. No vendor code, firmware or logos are included.
+System libraries and original vendor software retain their own licenses;
+see [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md).

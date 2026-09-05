@@ -1,13 +1,28 @@
 [build-system]
-requires = ["setuptools>=68"]
+requires = ["setuptools>=77"]
 build-backend = "setuptools.build_meta"
 
 [project]
 name = "btd700-control"
-version = "0.1.0"
+version = "0.2.0"
 description = "Independent native Linux controls and tray menu for the Sennheiser BTD 700"
 requires-python = ">=3.10"
 readme = "README.md"
+license = "MIT"
+license-files = ["LICENSE", "THIRD_PARTY_NOTICES.md"]
+authors = [{ name = "Justin Eckenweber" }]
+keywords = ["sennheiser", "btd700", "linux", "bluetooth", "auracast", "gtk"]
+classifiers = [
+  "Development Status :: 3 - Alpha",
+  "Operating System :: POSIX :: Linux",
+  "Programming Language :: Python :: 3",
+  "Topic :: Multimedia :: Sound/Audio",
+]
+
+[project.urls]
+Homepage = "https://github.com/justin-eckenweber/btd700linux"
+Issues = "https://github.com/justin-eckenweber/btd700linux/issues"
+Changelog = "https://github.com/justin-eckenweber/btd700linux/blob/main/CHANGELOG.md"
 
 [project.scripts]
 btd700-control = "btd700.__main__:main"

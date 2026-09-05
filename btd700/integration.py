@@ -15,7 +15,8 @@ def desktop_entry(*, background=False):
     # Desktop Entry Exec quoting is not shell quoting.
     escaped = path.replace('\\', '\\\\').replace('"', '\\"').replace('`', '\\`').replace('$', '\\$').replace('%', '%%')
     return ('[Desktop Entry]\nType=Application\nName=BTD 700 Control\n'
-            'Comment=Linux-Steuerung für den Sennheiser BTD 700\n'
+            'Comment=Linux controls for the Sennheiser BTD 700\n'
+            'Comment[de]=Linux-Steuerung für den Sennheiser BTD 700\n'
             f'Exec="{escaped}"{module_args}' + (' --background' if background else '') + '\n'
             f'Icon={icon}\nTerminal=false\n'
             'Categories=AudioVideo;Audio;\n'

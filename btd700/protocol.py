@@ -1,4 +1,5 @@
 """BTD 700 control protocol. No updater transport or arbitrary commands."""
+from .i18n import tr
 from dataclasses import dataclass
 from enum import IntEnum
 import re
@@ -51,8 +52,8 @@ def validate_text(value: str, *, key: bool = False) -> bytes:
     """Match the original app's 4–16 ASCII character input bounds; empty resets."""
     pattern = r'[A-Za-z0-9]{4,16}' if key else r'[A-Za-z0-9 ]{4,16}'
     if value and (not re.fullmatch(pattern, value) or value != value.strip()):
-        what = 'Passwort: 4–16 Buchstaben oder Ziffern.' if key else (
-            'Name: 4–16 Buchstaben, Ziffern oder innere Leerzeichen.')
+        what = tr('Passwort: 4–16 Buchstaben oder Ziffern.') if key else (
+            tr('Name: 4–16 Buchstaben, Ziffern oder innere Leerzeichen.'))
         raise ValueError(what)
     return value.encode('ascii')
 
@@ -61,7 +62,7 @@ def encode(command: Command, payload: bytes = b'') -> bytes:
     try:
         command = Command(command)
     except ValueError as exc:
-        raise ValueError('Unbekannter Steuerbefehl; kein Zugriff auf Update-Befehle.') from exc
+        raise ValueError(tr('Unbekannter Steuerbefehl; kein Zugriff auf Update-Befehle.')) from exc
     if command in READ_COMMANDS or command == Command.FACTORY_RESET:
         valid = not payload
     elif command == Command.SET_MODE:
@@ -79,13 +80,13 @@ def encode(command: Command, payload: bytes = b'') -> bytes:
     else:
         valid = False
     if not valid:
-        raise ValueError(f'Ungültige Parameter für {command.name}.')
+        raise ValueError(tr('Ungültige Parameter für {command}.').format(command=command.name))
     return bytes((REPORT_ID, 0xFE, command, len(payload))) + payload + bytes(60 - len(payload))
 
 
 def acknowledge(event: int) -> bytes:
     if event not in EVENTS:
-        raise ProtocolError(f'Unbekannte Benachrichtigung: {event:#x}')
+        raise ProtocolError(tr('Unbekannte Benachrichtigung: {event:#x}').format(event=event))
     return bytes((REPORT_ID, 0xFD, event, 0)) + bytes(60)
 
 
@@ -100,5 +101,5 @@ def decode(report: bytes) -> Message | None:
     if not report or report[0] != REPORT_ID:
         return None  # Media keys share the same interface.
     if len(report) < 4 or report[1] not in (0xFC, 0xFF) or report[3] > 60 or len(report) < 4 + report[3]:
-        raise ProtocolError('Ungültige Antwort des Dongles.')
+        raise ProtocolError(tr('Ungültige Antwort des Dongles.'))
     return Message(report[1], report[2], report[4:4 + report[3]])

@@ -1,4 +1,5 @@
 """Native GTK 4 / libadwaita controls and a persistent notification-area menu."""
+from .i18n import tr, set_language
 import sys
 import gi
 
@@ -11,7 +12,9 @@ from .worker import Worker
 
 
 class Application(Adw.Application):
-    def __init__(self, *, background=False, demo=False, device=None, smoke_seconds=0):
+    def __init__(self, *, background=False, demo=False, device=None, smoke_seconds=0, language=None):
+        if language:
+            set_language(language)
         super().__init__(application_id=APP_ID + ('.Demo' if demo else ''), flags=Gio.ApplicationFlags.DEFAULT_FLAGS)
         self.background = background
         self.demo = demo
@@ -39,7 +42,7 @@ class Application(Adw.Application):
             from .tray import Tray
             self.tray = Tray(self)
         except (ImportError, ValueError, GLib.Error) as exc:
-            self.last_error = f'Infobereich nicht verfügbar: {exc}'
+            self.last_error = tr('Infobereich nicht verfügbar: {error}').format(error=exc)
         self.worker = Worker(self._on_status, demo=self.demo, device_path=self.device)
         self.worker.start()
         self.worker.commands.put(None)
@@ -79,11 +82,11 @@ class Application(Adw.Application):
         toolbar = Adw.ToolbarView()
         header = Adw.HeaderBar()
         header.set_title_widget(Adw.WindowTitle(title='BTD 700', subtitle='Linux Control' + (' · DEMO' if self.demo else '')))
-        refresh = Gtk.Button(icon_name='view-refresh-symbolic', tooltip_text='Status aktualisieren')
+        refresh = Gtk.Button(icon_name='view-refresh-symbolic', tooltip_text=tr('Status aktualisieren'))
         refresh.connect('clicked', lambda *_: self.worker.commands.put(None))
         header.pack_start(refresh)
         self.refresh_button = refresh
-        quit_button = Gtk.Button(icon_name='application-exit-symbolic', tooltip_text='App vollständig beenden')
+        quit_button = Gtk.Button(icon_name='application-exit-symbolic', tooltip_text=tr('App vollständig beenden'))
         quit_button.connect('clicked', lambda *_: self.quit())
         header.pack_end(quit_button)
         toolbar.add_top_bar(header)
@@ -102,10 +105,10 @@ class Application(Adw.Application):
         heading = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=8)
         icon = Gtk.Image(icon_name='audio-headphones-symbolic', pixel_size=48)
         heading.append(icon)
-        self.codec_label = Gtk.Label(label='BTD 700 verbinden')
+        self.codec_label = Gtk.Label(label=tr('BTD 700 verbinden'))
         self.codec_label.add_css_class('title-1')
         heading.append(self.codec_label)
-        self.state_label = Gtk.Label(label='Suche nach deinem USB-Dongle …', wrap=True)
+        self.state_label = Gtk.Label(label=tr('Suche nach deinem USB-Dongle …'), wrap=True)
         self.state_label.add_css_class('dim-label')
         heading.append(self.state_label)
         self.quality_label = Gtk.Label(label='')
@@ -120,7 +123,7 @@ class Application(Adw.Application):
         self.device_box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=22, sensitive=False)
         content.append(self.device_box)
 
-        mode_group = Adw.PreferencesGroup(title='Audiomodus', description='Der Modus wird direkt am Dongle umgeschaltet.')
+        mode_group = Adw.PreferencesGroup(title=tr('Audiomodus'), description=tr('Der Modus wird direkt am Dongle umgeschaltet.'))
         mode_box = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=0, homogeneous=True)
         mode_box.add_css_class('linked')
         self.mode_buttons = []
@@ -134,50 +137,50 @@ class Application(Adw.Application):
         mode_group.add(mode_box)
         self.device_box.append(mode_group)
 
-        audio = Adw.PreferencesGroup(title='Kopfhörer')
+        audio = Adw.PreferencesGroup(title=tr('Kopfhörer'))
         self.codec_row = Adw.ComboRow(title='Codec')
         self.codec_row.connect('notify::selected', self._codec_selected)
         audio.add(self.codec_row)
-        self.transport_row = Adw.ComboRow(title='Bluetooth-Transport')
+        self.transport_row = Adw.ComboRow(title=tr('Bluetooth-Transport'))
         self.transport_row.connect('notify::selected', self._transport_selected)
         audio.add(self.transport_row)
-        self.connection_row = Adw.ActionRow(title='Verbindung')
-        self.connection_button = Gtk.Button(label='Verbinden', valign=Gtk.Align.CENTER)
+        self.connection_row = Adw.ActionRow(title=tr('Verbindung'))
+        self.connection_button = Gtk.Button(label=tr('Verbinden'), valign=Gtk.Align.CENTER)
         self.connection_button.connect('clicked', lambda *_: self.perform('set_connection', self.status.state < 2) if self.status else None)
         self.connection_row.add_suffix(self.connection_button)
         audio.add(self.connection_row)
         self.device_box.append(audio)
 
         self.auracast_group = Adw.PreferencesGroup(title='Auracast',
-            description='Der Audiomodus „Auracast“ startet die Übertragung an mehrere Empfänger.')
-        self.name_entry = Adw.EntryRow(title='Name der Übertragung')
+            description=tr('Der Audiomodus „Auracast“ startet die Übertragung an mehrere Empfänger.'))
+        self.name_entry = Adw.EntryRow(title=tr('Name der Übertragung'))
         self.name_entry.connect('changed', self._form_changed)
         self.auracast_group.add(self.name_entry)
-        self.public_row = Adw.SwitchRow(title='Öffentlich auffindbar',
-            subtitle='Übertragung in der Auracast-Suche anzeigen')
+        self.public_row = Adw.SwitchRow(title=tr('Öffentlich auffindbar'),
+            subtitle=tr('Übertragung in der Auracast-Suche anzeigen'))
         self.public_row.connect('notify::active', self._form_changed)
         self.auracast_group.add(self.public_row)
-        self.encryption_row = Adw.SwitchRow(title='Passwortschutz')
+        self.encryption_row = Adw.SwitchRow(title=tr('Passwortschutz'))
         self.encryption_row.connect('notify::active', self._form_changed)
         self.auracast_group.add(self.encryption_row)
-        self.password_entry = Adw.PasswordEntryRow(title='Neues Passwort')
-        self.password_entry.set_tooltip_text('4–16 Buchstaben oder Ziffern. Leer lassen behält das bisherige Passwort.')
+        self.password_entry = Adw.PasswordEntryRow(title=tr('Neues Passwort'))
+        self.password_entry.set_tooltip_text(tr('4–16 Buchstaben oder Ziffern. Leer lassen behält das bisherige Passwort.'))
         self.password_entry.connect('changed', self._password_changed)
         self.auracast_group.add(self.password_entry)
-        self.broadcast_quality = Adw.ComboRow(title='Übertragungsqualität',
-            model=Gtk.StringList.new(['Standard · 16 kHz', 'Standard · 24 kHz', 'Hohe Qualität']))
+        self.broadcast_quality = Adw.ComboRow(title=tr('Übertragungsqualität'),
+            model=Gtk.StringList.new([tr('Standard · 16 kHz'), tr('Standard · 24 kHz'), tr('Hohe Qualität')]))
         self.broadcast_quality.connect('notify::selected', self._form_changed)
         self.auracast_group.add(self.broadcast_quality)
         actions = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=8, halign=Gtk.Align.END, margin_top=12)
-        self.discard_button = Gtk.Button(label='Verwerfen', sensitive=False)
+        self.discard_button = Gtk.Button(label=tr('Verwerfen'), sensitive=False)
         self.discard_button.connect('clicked', self._discard)
-        self.save_button = Gtk.Button(label='Speichern', sensitive=False)
+        self.save_button = Gtk.Button(label=tr('Speichern'), sensitive=False)
         self.save_button.add_css_class('suggested-action')
         self.save_button.connect('clicked', self._save_broadcast)
         actions.append(self.discard_button)
         actions.append(self.save_button)
         self.auracast_group.add(actions)
-        hint = Gtk.Label(label='Passwort leer lassen, um das bisherige zu behalten.',
+        hint = Gtk.Label(label=tr('Passwort leer lassen, um das bisherige zu behalten.'),
                          wrap=True, xalign=0, margin_top=8)
         hint.add_css_class('caption')
         hint.add_css_class('dim-label')
@@ -185,19 +188,19 @@ class Application(Adw.Application):
         self.device_box.append(self.auracast_group)
 
         integration = Adw.PreferencesGroup(title='App')
-        self.tray_row = Adw.ActionRow(title='Im Infobereich weiterlaufen', subtitle='Infobereich wird verbunden …')
+        self.tray_row = Adw.ActionRow(title=tr('Im Infobereich weiterlaufen'), subtitle=tr('Infobereich wird verbunden …'))
         integration.add(self.tray_row)
-        autostart = Adw.SwitchRow(title='Beim Anmelden starten', subtitle='Startet unauffällig im Infobereich',
-                                 active=autostart_path().exists())
+        autostart = Adw.SwitchRow(title=tr('Beim Anmelden starten'), subtitle=tr('Startet unauffällig im Infobereich'),
+                                 active=False if self.demo else autostart_path().exists())
         autostart.set_sensitive(not self.demo)
         autostart.connect('notify::active', self._autostart_changed)
         integration.add(autostart)
         content.append(integration)
-        self.firmware_label = Gtk.Label(label='Unabhängige Steuerungs-App · Keine Firmware-Updates', wrap=True)
+        self.firmware_label = Gtk.Label(label=tr('Unabhängige Steuerungs-App · Keine Firmware-Updates'), wrap=True)
         self.firmware_label.add_css_class('caption')
         self.firmware_label.add_css_class('dim-label')
         content.append(self.firmware_label)
-        reset = Gtk.Button(label='Dongle auf Werkseinstellungen zurücksetzen …', halign=Gtk.Align.CENTER)
+        reset = Gtk.Button(label=tr('Dongle auf Werkseinstellungen zurücksetzen …'), halign=Gtk.Align.CENTER)
         reset.add_css_class('flat')
         reset.connect('clicked', lambda *_: self.confirm_reset())
         self.reset_button = reset
@@ -220,8 +223,8 @@ class Application(Adw.Application):
 
     def tray_changed(self):
         available = bool(self.tray and self.tray.available)
-        self.tray_row.set_subtitle('Beim Schließen bleibt das Symbol in der oberen Leiste.' if available else
-                                  'Kein Infobereich verfügbar; Schließen beendet die App.')
+        self.tray_row.set_subtitle(tr('Beim Schließen bleibt das Symbol in der oberen Leiste.') if available else
+                                  tr('Kein Infobereich verfügbar; Schließen beendet die App.'))
 
     def perform(self, method, *args, **kwargs):
         if self.busy or not self.status:
@@ -233,6 +236,7 @@ class Application(Adw.Application):
         self._render()
 
     def _on_status(self, status, error, completed):
+        was_disconnected = self.status is None
         self.status = status
         self.received_status |= status is not None
         if completed:
@@ -245,10 +249,10 @@ class Application(Adw.Application):
                     self.password_entry.set_text('')
                     self.updating = False
                 self.form_submitted = False
-            self.toast.add_toast(Adw.Toast.new(error or 'Vom Dongle bestätigt'))
+            self.toast.add_toast(Adw.Toast.new(error or tr('Vom Dongle bestätigt')))
         elif not status:
             self.last_error = error
-        elif self.last_error.startswith(('Kein BTD 700', 'USB-Zugriff fehlt', '[Errno')):
+        elif was_disconnected:
             self.last_error = ''
         self._render()
         return False
@@ -262,7 +266,7 @@ class Application(Adw.Application):
         self.error_label.set_visible(bool(self.last_error))
         if s:
             self.codec_label.set_label('Auracast' if s.mode == 2 else s.codec_name)
-            self.state_label.set_label('Einstellung wird übernommen …' if self.busy else STATES.get(s.state, f'Status {s.state}'))
+            self.state_label.set_label(tr('Einstellung wird übernommen …') if self.busy else tr(STATES.get(s.state, f'Status {s.state}')))
             self.quality_label.set_label(s.quality)
             for mode, button in enumerate(self.mode_buttons):
                 button.set_active(mode == s.mode)
@@ -273,28 +277,28 @@ class Application(Adw.Application):
                 self.codec_row.set_model(Gtk.StringList.new([CODECS[v] for v in values]))
             self.codec_row.set_selected(next((i for i, v in enumerate(values) if v & s.codec), Gtk.INVALID_LIST_POSITION))
             self.codec_row.set_sensitive(s.mode == 0 and s.state >= 2 and len(values) > 1)
-            self.codec_row.set_subtitle('Auswahl im Standard-Modus' if s.mode != 0 else 'Vom Dongle angebotene Codecs')
+            self.codec_row.set_subtitle(tr('Auswahl im Standard-Modus') if s.mode != 0 else tr('Vom Dongle angebotene Codecs'))
             values = [3] + [v for v in (1, 2) if s.transports & v]
             if s.transport in (1, 2) and s.transport not in values:
                 values.append(s.transport)
             if values != self.transport_values:
                 self.transport_values = values
-                names = {3: 'Automatisch', 1: 'Bluetooth Classic', 2: 'LE Audio'}
+                names = {3: tr('Automatisch'), 1: 'Bluetooth Classic', 2: 'LE Audio'}
                 self.transport_row.set_model(Gtk.StringList.new([names[v] for v in values]))
             self.transport_row.set_selected(values.index(s.transport) if s.transport in values else Gtk.INVALID_LIST_POSITION)
             self.transport_row.set_sensitive(s.mode == 0)
-            self.connection_row.set_subtitle(STATES.get(s.state, 'Unbekannt'))
-            self.connection_button.set_label('Trennen' if s.state >= 2 else 'Verbinden')
+            self.connection_row.set_subtitle(tr(STATES.get(s.state, 'Unbekannt')))
+            self.connection_button.set_label(tr('Trennen') if s.state >= 2 else tr('Verbinden'))
             self.connection_button.set_sensitive(s.mode != 2)
             if not self.dirty:
                 self.name_entry.set_text(s.broadcast_name)
                 self.public_row.set_active(bool(s.broadcast_public))
                 self.encryption_row.set_active(bool(s.broadcast_encrypted))
                 self.broadcast_quality.set_selected(s.broadcast_quality)
-            self.firmware_label.set_label(f'Firmware {s.firmware} · Unabhängige App · Keine Firmware-Updates')
+            self.firmware_label.set_label(tr('Firmware {version} · Unabhängige App · Keine Firmware-Updates').format(version=s.firmware))
         else:
-            self.codec_label.set_label('BTD 700 verbinden')
-            self.state_label.set_label('Warte auf den USB-Dongle …')
+            self.codec_label.set_label(tr('BTD 700 verbinden'))
+            self.state_label.set_label(tr('Warte auf den USB-Dongle …'))
             self.quality_label.set_label('')
         self.save_button.set_sensitive(self.dirty and not self.busy)
         self.discard_button.set_sensitive(self.dirty and not self.busy)
@@ -356,10 +360,10 @@ class Application(Adw.Application):
         self.show_window()
         if not self.status or self.busy:
             return
-        dialog = Adw.AlertDialog(heading='BTD 700 zurücksetzen?',
-            body='Alle Kopplungen und gespeicherten Einstellungen werden gelöscht. Danach musst du die Kopfhörer erneut koppeln.')
-        dialog.add_response('cancel', 'Abbrechen')
-        dialog.add_response('reset', 'Zurücksetzen')
+        dialog = Adw.AlertDialog(heading=tr('BTD 700 zurücksetzen?'),
+            body=tr('Alle Kopplungen und gespeicherten Einstellungen werden gelöscht. Danach musst du die Kopfhörer erneut koppeln.'))
+        dialog.add_response('cancel', tr('Abbrechen'))
+        dialog.add_response('reset', tr('Zurücksetzen'))
         dialog.set_response_appearance('reset', Adw.ResponseAppearance.DESTRUCTIVE)
         dialog.set_default_response('cancel')
         dialog.set_close_response('cancel')
@@ -370,7 +374,7 @@ class Application(Adw.Application):
         try:
             set_autostart(row.get_active())
         except OSError as exc:
-            self.last_error = f'Autostart konnte nicht gespeichert werden: {exc}'
+            self.last_error = tr('Autostart konnte nicht gespeichert werden: {error}').format(error=exc)
             self._render()
 
 

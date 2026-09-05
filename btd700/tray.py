@@ -1,4 +1,5 @@
 """StatusNotifierItem + libdbusmenu, compatible with GNOME AppIndicator and KDE."""
+from .i18n import tr
 import gi
 from gi.repository import Gio, GLib
 from .protocol import CODECS, MODES, STATES
@@ -65,7 +66,7 @@ class Tray:
         self.app.tray_changed()
 
     def _property(self, _bus, _sender, _path, _iface, name):
-        tooltip = 'BTD 700 anschließen'
+        tooltip = tr('BTD 700 anschließen')
         if self.status:
             tooltip = f'{MODES.get(self.status.mode, "—")} · {self.status.codec_name} · {self.status.quality}'
         props = {
@@ -117,8 +118,8 @@ class Tray:
         add(self._item('BTD 700 Control · DEMO' if self.app.demo else 'BTD 700 Control', self.app.show_window))
         if status:
             add(self._item(f'{status.codec_name} · {status.quality}', enabled=False))
-            add(self._item(STATES.get(status.state, 'Unbekannter Status'), enabled=False))
-            modes = self._submenu(root, 'Audiomodus')
+            add(self._item(tr(STATES.get(status.state, 'Unbekannter Status')), enabled=False))
+            modes = self._submenu(root, tr('Audiomodus'))
             for value, label in MODES.items():
                 modes.child_append(self._item(label,
                     lambda v=value: self.app.perform('set_mode', v),
@@ -132,41 +133,41 @@ class Tray:
                         enabled=not busy and status.mode == 0 and status.state >= 2,
                         checked=bool(status.codec & value), radio=True))
             if not codecs.get_children():
-                codecs.child_append(self._item('Keine verbundenen Kopfhörer', enabled=False))
-            transports = self._submenu(root, 'Bluetooth-Transport')
-            for value, label in ((3, 'Automatisch'), (1, 'Bluetooth Classic'), (2, 'LE Audio')):
+                codecs.child_append(self._item(tr('Keine verbundenen Kopfhörer'), enabled=False))
+            transports = self._submenu(root, tr('Bluetooth-Transport'))
+            for value, label in ((3, tr('Automatisch')), (1, 'Bluetooth Classic'), (2, 'LE Audio')):
                 transports.child_append(self._item(label,
                     lambda v=value: self.app.perform('set_mode', status.mode, transport=v),
                     enabled=not busy and status.mode == 0 and (value == 3 or bool(status.transports & value)),
                     checked=status.transport == value, radio=True))
             auracast = self._submenu(root, 'Auracast')
-            auracast.child_append(self._item('Name und Passwort …', lambda: self.app.show_window('auracast')))
-            auracast.child_append(self._item('Öffentlich auffindbar',
+            auracast.child_append(self._item(tr('Name und Passwort …'), lambda: self.app.show_window('auracast')))
+            auracast.child_append(self._item(tr('Öffentlich auffindbar'),
                 lambda: self.app.perform('set_broadcast', public=not status.broadcast_public),
                 enabled=not busy, checked=bool(status.broadcast_public)))
-            auracast.child_append(self._item('Passwortschutz',
+            auracast.child_append(self._item(tr('Passwortschutz'),
                 lambda: self.app.toggle_encryption(), enabled=not busy,
                 checked=bool(status.broadcast_encrypted)))
-            quality = self._submenu(auracast, 'Übertragungsqualität')
-            for value, label in enumerate(('Standard · 16 kHz', 'Standard · 24 kHz', 'Hohe Qualität')):
+            quality = self._submenu(auracast, tr('Übertragungsqualität'))
+            for value, label in enumerate((tr('Standard · 16 kHz'), tr('Standard · 24 kHz'), tr('Hohe Qualität'))):
                 quality.child_append(self._item(label,
                     lambda v=value: self.app.perform('set_broadcast', quality=v),
                     enabled=not busy, checked=status.broadcast_quality == value, radio=True))
-            add(self._item('Kopfhörer trennen' if status.state >= 2 else 'Kopfhörer verbinden',
+            add(self._item(tr('Kopfhörer trennen') if status.state >= 2 else tr('Kopfhörer verbinden'),
                 lambda: self.app.perform('set_connection', status.state < 2), enabled=not busy and status.mode != 2))
-            add(self._item('Werkseinstellungen …', self.app.confirm_reset, enabled=not busy))
+            add(self._item(tr('Werkseinstellungen …'), self.app.confirm_reset, enabled=not busy))
         else:
-            add(self._item('Dongle nicht verbunden' if not error else 'USB-Zugriff prüfen – Fenster öffnen',
+            add(self._item(tr('Dongle nicht verbunden') if not error else tr('USB-Zugriff prüfen – Fenster öffnen'),
                            self.app.show_window))
         if busy:
-            add(self._item('Einstellung wird übernommen …', enabled=False))
+            add(self._item(tr('Einstellung wird übernommen …'), enabled=False))
         if error:
-            add(self._item('Fehler anzeigen …', self.app.show_window))
+            add(self._item(tr('Fehler anzeigen …'), self.app.show_window))
         separator = Dbusmenu.Menuitem.new()
         separator.property_set('type', 'separator')
         add(separator)
-        add(self._item('Fenster öffnen', self.app.show_window))
-        add(self._item('Beenden', self.app.quit))
+        add(self._item(tr('Fenster öffnen'), self.app.show_window))
+        add(self._item(tr('Beenden'), self.app.quit))
         self.root = root  # Keep Python signal closures alive.
         self.server.set_root(root)
         self.bus.emit_signal(None, '/StatusNotifierItem', INTERFACE, 'NewToolTip', None)

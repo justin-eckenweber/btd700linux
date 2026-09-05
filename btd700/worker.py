@@ -1,4 +1,5 @@
 """One thread owns the USB handle; the GTK main loop never waits for USB."""
+from .i18n import tr
 import queue
 import threading
 from gi.repository import GLib
@@ -44,9 +45,9 @@ class Worker(threading.Thread):
                             if self.device_path:
                                 devices = [d for d in devices if d.path == self.device_path]
                             if not devices:
-                                raise DeviceError('Kein BTD 700 gefunden. Bitte den Dongle einstecken.')
+                                raise DeviceError(tr('Kein BTD 700 gefunden. Bitte den Dongle einstecken.'))
                             if len(devices) > 1:
-                                raise DeviceError('Mehrere BTD 700 gefunden. Mit --device /dev/hidrawN auswählen.')
+                                raise DeviceError(tr('Mehrere BTD 700 gefunden. Mit --device /dev/hidrawN auswählen.'))
                             self.transport = Hidraw(devices[0])
                         self.controller = Controller(self.transport)
                     if action:

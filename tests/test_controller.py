@@ -1,4 +1,5 @@
 import unittest
+from btd700.i18n import tr
 from btd700.controller import Controller
 from btd700.demo import DemoTransport
 from btd700.protocol import Command as C
@@ -25,7 +26,7 @@ class ControllerTests(unittest.TestCase):
         self.device.values.pop(C.GET_KEY)
         status = self.controller.snapshot()
         self.assertEqual(status.codec_name, 'aptX Adaptive')
-        self.assertEqual(status.quality, '24 Bit / 48 kHz')
+        self.assertEqual(status.quality, tr('24 Bit') + ' / 48 kHz')
         self.assertEqual(status.firmware, '3.11.0')
         self.assertEqual(self.device.writes, [])
         self.assertNotIn('password', status.public_dict())

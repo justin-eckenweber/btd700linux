@@ -4,6 +4,7 @@ import sys
 from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 from btd700.app import Application
+from btd700.i18n import tr
 from gi.repository import Gio, GLib, Gtk
 
 app = Application(demo=True)
@@ -16,7 +17,7 @@ bus_pending = False
 def menu_item(labels):
     root = app.tray.root
     for label in labels:
-        root = next(item for item in root.get_children() if item.property_get('label') == label)
+        root = next(item for item in root.get_children() if item.property_get('label') == tr(label))
     return root
 
 

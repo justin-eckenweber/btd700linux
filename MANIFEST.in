@@ -1,0 +1,6 @@
+include README.md README.de.md LICENSE THIRD_PARTY_NOTICES.md CONTRIBUTING.md CHANGELOG.md
+include run.sh install.py
+recursive-include packaging *.svg *.rules
+recursive-include docs *.md *.png
+recursive-include tools *.py
+recursive-include tests *.py
