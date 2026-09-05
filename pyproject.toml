@@ -1,0 +1,16 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "btd700-control"
+version = "0.1.0"
+description = "Independent native Linux controls and tray menu for the Sennheiser BTD 700"
+requires-python = ">=3.10"
+readme = "README.md"
+
+[project.scripts]
+btd700-control = "btd700.__main__:main"
+
+[tool.setuptools.packages.find]
+include = ["btd700*"]
