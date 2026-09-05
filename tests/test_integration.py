@@ -6,7 +6,7 @@ import tempfile
 import unittest
 from unittest.mock import patch
 
-from btd700.integration import APP_ID, autostart_path, desktop_entry, set_autostart
+from btd700.integration import APP_ID, autostart_path, desktop_entry, set_autostart, installed_icon
 
 ROOT = Path(__file__).resolve().parents[1]
 
@@ -44,3 +44,37 @@ class IntegrationTests(unittest.TestCase):
             text = desktop_entry(background=True)
         self.assertIn(' -m btd700 --background', text)
         self.assertIn('Icon=audio-headphones', text)
+
+    def test_appimage_autostart_survives_temporary_mount_removal(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            mount = Path(tmp) / 'temporary-mount'
+            mount.mkdir()
+            (mount / 'btd700-control.svg').write_text('<svg/>')
+            env = dict(APPIMAGE='/home/example/Apps/BTD "700" 100%.AppImage',
+                       APPDIR=str(mount), XDG_CONFIG_HOME=tmp+'/config', XDG_DATA_HOME=tmp+'/data')
+            with patch.dict(os.environ, env):
+                set_autostart(True)
+                text = autostart_path().read_text()
+                self.assertIn('Exec="/home/example/Apps/BTD \\"700\\" 100%%.AppImage" --background', text)
+                self.assertNotIn(str(mount), text)
+                self.assertNotIn(' -m btd700', text)
+                (mount / 'btd700-control.svg').unlink()
+                mount.rmdir()
+                self.assertEqual(installed_icon().read_text(), '<svg/>')
+
+    def test_extracted_appimage_launcher_uses_environment_wrapper(self):
+        with patch.dict(os.environ, {'APPDIR': '/tmp/Extracted app', 'APPIMAGE': ''}):
+            text = desktop_entry()
+        self.assertIn('Exec="/tmp/Extracted app/AppRun"', text)
+        self.assertIn('Icon=/tmp/Extracted app/btd700-control.svg', text)
+        self.assertNotIn(' -m btd700', text)
+
+    def test_appimage_launcher_preserves_fuse_free_mode(self):
+        with patch.dict(os.environ, {'APPDIR': '/tmp/mount', 'APPIMAGE': '/tmp/BTD.AppImage', 'APPIMAGE_EXTRACT_AND_RUN': '1'}):
+            text = desktop_entry(background=True)
+        self.assertIn('"/tmp/BTD.AppImage" --appimage-extract-and-run --background', text)
+
+    def test_runtime_extraction_directory_preserves_fuse_free_mode(self):
+        with patch.dict(os.environ, {'APPDIR': '/tmp/appimage_extracted_abc', 'APPIMAGE': '/tmp/BTD.AppImage'}):
+            text = desktop_entry(background=True)
+        self.assertIn(' --appimage-extract-and-run --background', text)

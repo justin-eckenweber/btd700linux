@@ -1,0 +1,10 @@
+#!/bin/sh
+set -eu
+APPDIR=${APPDIR:-$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)}
+export APPDIR
+. "$APPDIR/usr/share/btd700-control/appimage-environment.sh"
+case "${1:-}" in
+    --install-desktop) exec "$APPDIR/usr/bin/python3.12" "$APPDIR/usr/share/btd700-control/install.py" ;;
+    --remove-desktop) exec "$APPDIR/usr/bin/python3.12" "$APPDIR/usr/share/btd700-control/install.py" --uninstall ;;
+esac
+exec "$APPDIR/usr/bin/python3.12" -m btd700 "$@"

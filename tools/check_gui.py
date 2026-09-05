@@ -1,11 +1,18 @@
 #!/usr/bin/env python3
 """Exercise the GTK UI and real D-Bus menu against an isolated demo device."""
 import sys
+import os
 from pathlib import Path
-sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
+if not os.environ.get('BTD700_TEST_INSTALLED'):
+    sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 from btd700.app import Application
 from btd700.i18n import tr
 from gi.repository import Gio, GLib, Gtk
+
+# CI uses a private dbus-run-session; never replace the real desktop's watcher.
+if os.environ.get('BTD700_TEST_TRAY_HOST') == '1':
+    from tray_test_host import start_host
+    test_host = start_host()
 
 app = Application(demo=True)
 step = 0
@@ -46,9 +53,10 @@ def screenshot(path):
     paintable.snapshot(snapshot, window.get_width(), window.get_height())
     node = snapshot.to_node()
     if node is None:
-        raise RuntimeError('Window snapshot is not ready')
+        return False  # Wayland may still be committing a resize; retry next tick.
     texture = window.get_renderer().render_texture(node, None)
     texture.save_to_png(path)
+    return True
 
 
 def tick():
@@ -118,14 +126,17 @@ def tick():
             app.mode_buttons[0].emit('clicked') if app.mode_buttons[0].get_active() else app.mode_buttons[0].set_active(True)
             app.perform('set_mode', 0)
         elif step == 14:
-            screenshot('/tmp/btd700-gui-test.png')
+            if not screenshot('/tmp/btd700-gui-test.png'):
+                return True
             adjustment = app.scroll.get_vadjustment()
             adjustment.set_value(adjustment.get_upper() - adjustment.get_page_size())
         elif step == 15:
-            screenshot('/tmp/btd700-gui-test-bottom.png')
+            if not screenshot('/tmp/btd700-gui-test-bottom.png'):
+                return True
             app.window.set_default_size(420, 600)
         elif step == 16:
-            screenshot('/tmp/btd700-gui-test-narrow.png')
+            if not screenshot('/tmp/btd700-gui-test-narrow.png'):
+                return True
             print('PASS: GTK form, all D-Bus tray control groups, encryption, close/reopen, dirty edits, screenshots', flush=True)
             passed = True
             app.quit()

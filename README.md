@@ -15,7 +15,7 @@
 
 <p align="center">
   <a href="#install">Install</a> ·
-  <a href="https://github.com/justin-eckenweber/btd700linux/archive/refs/tags/v0.2.0.zip">Download source v0.2.0</a> ·
+  <a href="https://github.com/justin-eckenweber/btd700linux/releases/latest">Download AppImage</a> ·
   <a href="README.de.md">Deutsche Anleitung</a> ·
   <a href="https://github.com/justin-eckenweber/btd700linux/issues">Report an issue</a>
 </p>
@@ -65,11 +65,33 @@ window quits the app instead.
 
 ## Install
 
-Version **0.2.0** is distributed as source. You do not need to compile the app or
-install Python packages with pip. There is currently no AppImage, Flatpak or
-self-contained binary download.
+### AppImage (x86-64)
 
-### 1. Install the system libraries
+[Download the AppImage from GitHub Releases](https://github.com/justin-eckenweber/btd700linux/releases/latest).
+It includes Python, GTK, libadwaita and the tray library. Requires **glibc 2.39+**
+(for example Ubuntu 24.04 or newer, or the tested Bazzite 44 desktop).
+
+```bash
+chmod +x BTD_700_Control-0.3.0-x86_64.AppImage
+./BTD_700_Control-0.3.0-x86_64.AppImage
+```
+
+Put it in a permanent folder, then optionally run it with `--install-desktop` to
+add an application-menu entry. Enable **Start at login** inside the app for tray
+autostart. Use `--remove-desktop` to remove both entries. Keep the AppImage at the
+same path; after moving it, recreate the menu entry and toggle autostart off/on.
+
+If FUSE is unavailable, start with
+`APPIMAGE_EXTRACT_AND_RUN=1 ./BTD_700_Control-0.3.0-x86_64.AppImage`.
+See the [AppImage guide](docs/APPIMAGE.md) for permanent extraction, build instructions,
+checksums and dependency sources. USB permissions and the desktop's tray host are
+still required; GNOME needs a StatusNotifier/AppIndicator extension.
+
+### Run from source
+
+You can also run the Python source directly, without compiling or using pip.
+
+#### 1. Install the system libraries
 
 Requirements: **Python 3.10+**, PyGObject, **GTK 4.10+**, **libadwaita 1.5+** and
 libdbusmenu with GObject introspection. A graphical desktop session is needed for
@@ -99,7 +121,7 @@ KDE Plasma provides a tray host. Other desktops may work but have not been teste
 Package references: [Fedora libdbusmenu](https://packages.fedoraproject.org/pkgs/libdbusmenu/libdbusmenu/),
 [Ubuntu introspection package](https://packages.ubuntu.com/noble/gir1.2-dbusmenu-glib-0.4).
 
-### 2. Download and run
+#### 2. Download and run
 
 ```bash
 git clone https://github.com/justin-eckenweber/btd700linux.git
@@ -107,7 +129,7 @@ cd btd700linux
 ./run.sh
 ```
 
-Or [download the v0.2.0 source ZIP](https://github.com/justin-eckenweber/btd700linux/archive/refs/tags/v0.2.0.zip),
+Or [download the v0.3.0 source ZIP](https://github.com/justin-eckenweber/btd700linux/archive/refs/tags/v0.3.0.zip),
 extract it, and run `bash run.sh` inside the extracted folder.
 
 Want to explore without touching any hardware?
@@ -116,7 +138,7 @@ Want to explore without touching any hardware?
 ./run.sh --demo
 ```
 
-### 3. Add it to your application menu
+#### 3. Add it to your application menu
 
 ```bash
 python3 install.py
@@ -133,7 +155,8 @@ python3 install.py --uninstall  # Remove launcher and autostart entry
 
 ### USB permissions
 
-If the app reports that USB access is denied:
+If the app reports that USB access is denied, use the rule from the source checkout
+or download `70-btd700-control.rules` from the same AppImage release (adjust its path below):
 
 ```bash
 sudo install -m 0644 packaging/70-btd700-control.rules /etc/udev/rules.d/70-btd700-control.rules

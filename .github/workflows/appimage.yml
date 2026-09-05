@@ -1,0 +1,76 @@
+name: AppImage
+
+on:
+  push:
+    tags: ['v*']
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 35
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          persist-credentials: false
+      - name: Check release version
+        if: startsWith(github.ref, 'refs/tags/')
+        env:
+          RELEASE_TAG: ${{ github.ref_name }}
+        run: |
+          python3 - <<'PY'
+          import os, tomllib
+          version = tomllib.load(open('pyproject.toml', 'rb'))['project']['version']
+          assert os.environ['RELEASE_TAG'] == 'v' + version, 'Tag must match pyproject.toml'
+          PY
+      - name: Build isolated Ubuntu runtime and source archives
+        run: |
+          docker build -t btd700-appimage-builder -f packaging/appimage/Containerfile .
+          docker run --rm -v "$PWD:/src" btd700-appimage-builder
+      - name: Verify unit tests
+        run: |
+          docker run --rm -v "$PWD:/src" btd700-appimage-builder bash -c '
+            BTD700_LANGUAGE=en python3 -m unittest discover -s tests -v &&
+            BTD700_LANGUAGE=de python3 -m unittest discover -s tests -v'
+      - name: Verify packaged English/German GUI and tray without host Python or GTK
+        run: |
+          docker build -t btd700-appimage-test -f packaging/appimage/TestContainerfile .
+          docker run --rm -v "$PWD:/src" btd700-appimage-test
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        if: startsWith(github.ref, 'refs/tags/') || github.event_name == 'workflow_dispatch'
+        with:
+          name: appimage-x86_64
+          path: dist/*
+          compression-level: 0
+          if-no-files-found: error
+          retention-days: 1
+
+  release:
+    if: startsWith(github.ref, 'refs/tags/')
+    needs: build
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          persist-credentials: false
+      - uses: actions/download-artifact@634f93cb2916e3fdff6788551b99b062d0335ce0 # v5
+        with:
+          name: appimage-x86_64
+          path: dist
+      - name: Publish verified release assets
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+          RELEASE_TAG: ${{ github.ref_name }}
+        run: |
+          (cd dist && sha256sum --check SHA256SUMS)
+          gh release create "$RELEASE_TAG" dist/* --draft --verify-tag \
+            --title "BTD 700 Control $RELEASE_TAG" \
+            --notes-file packaging/appimage/RELEASE_NOTES.md
+          gh release edit "$RELEASE_TAG" --draft=false --latest

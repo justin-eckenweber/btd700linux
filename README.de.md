@@ -1,6 +1,6 @@
 # BTD 700 Control für Linux
 
-[English](README.md) · [Quellcode v0.2.0 herunterladen](https://github.com/justin-eckenweber/btd700linux/archive/refs/tags/v0.2.0.zip) · [Fehler melden](https://github.com/justin-eckenweber/btd700linux/issues)
+[English](README.md) · [AppImage herunterladen](https://github.com/justin-eckenweber/btd700linux/releases/latest) · [Fehler melden](https://github.com/justin-eckenweber/btd700linux/issues)
 
 Native GTK-4-App zur Steuerung des **Sennheiser BTD 700**, mit einem Menü im
 Infobereich von GNOME/KDE. Eigenständige Implementierung des HID-Steuerprotokolls,
@@ -29,16 +29,37 @@ Die Bilder zeigen die englische Oberfläche; Deutsch ist ebenfalls enthalten.
   <img src="docs/screenshots/auracast-settings.png" width="46%" alt="Auracast-Einstellungen und Infobereich-Optionen">
 </p>
 
-## Herunterladen
+## AppImage herunterladen
+
+[Das AppImage findest du unter GitHub Releases](https://github.com/justin-eckenweber/btd700linux/releases/latest).
+Python, GTK, libadwaita und die Tray-Bibliothek sind enthalten. Das Paket ist für
+**x86-64 mit glibc 2.39 oder neuer**, etwa Ubuntu 24.04+ oder das getestete Bazzite 44.
+
+```bash
+chmod +x BTD_700_Control-0.3.0-x86_64.AppImage
+./BTD_700_Control-0.3.0-x86_64.AppImage
+```
+
+Datei zuerst an ihren dauerhaften Platz legen. Mit `--install-desktop` legst du
+einen Anwendungsmenü-Eintrag an; „Beim Anmelden starten“ in der App aktiviert den
+Autostart im Tray. `--remove-desktop` entfernt beide Einträge. Nach Verschieben
+oder Umbenennen der Datei den Menüeintrag neu anlegen und Autostart aus-/einschalten.
+
+Ohne FUSE funktioniert der Start mit
+`APPIMAGE_EXTRACT_AND_RUN=1 ./BTD_700_Control-0.3.0-x86_64.AppImage`.
+Die [AppImage-Anleitung](docs/APPIMAGE.md) erklärt dauerhaftes Entpacken und eigene
+Builds. Prüfsummen und Bibliotheksquellen liegen beim Release. Die USB-Berechtigung
+und ein Tray-Host bleiben nötig; GNOME benötigt eine StatusNotifier/AppIndicator-Erweiterung.
+
+## Alternativ: Quellcode herunterladen
 
 ```bash
 git clone https://github.com/justin-eckenweber/btd700linux.git
 cd btd700linux
 ```
 
-Alternativ die oben verlinkte ZIP-Datei entpacken und `bash run.sh` im Projektordner
-ausführen. Die aktuelle Version wird als Quellcode verteilt; es gibt noch kein
-AppImage, Flatpak oder eigenständiges Binärpaket.
+Alternativ [Quellcode v0.3.0 als ZIP](https://github.com/justin-eckenweber/btd700linux/archive/refs/tags/v0.3.0.zip)
+entpacken und `bash run.sh` im Projektordner ausführen.
 
 ## Starten
 
@@ -101,7 +122,7 @@ Die angezeigten Bit-/kHz-Werte stammen vom Dongle. Die USB-Abtastrate wird vom
 Audiosystem (z. B. PipeWire) bestimmt und ist kein hier nachgewiesener Stellbefehl.
 Koppeln erfolgt über die Taste am Dongle; „Verbinden“ versucht die bestehende Kopplung.
 
-## Voraussetzungen
+## Voraussetzungen für den Start aus dem Quellcode
 
 Python ≥ 3.10, PyGObject, GTK ≥ 4.10, libadwaita ≥ 1.5 und libdbusmenu mit
 GObject-Introspection. Auf dem hier verwendeten Bazzite sind die benötigten

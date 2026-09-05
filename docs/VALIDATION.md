@@ -38,14 +38,30 @@ Connected BTD 700: USB `3542:3001`, firmware 3.11.0.
 - Extraction helper output matched the SHA256 of the original assembly used for
   protocol research. No vendor binaries were added to the distribution.
 
-The CI workflow runs the unit tests on Python 3.10 and 3.14, in both languages.
+## AppImage 0.3.0
+
+- Built an x86-64 image from Ubuntu 24.04 runtime packages, with bundled Python
+  3.12, GTK, libadwaita, libdbusmenu, SVG loading, MIME data, icons and fonts.
+- Normal FUSE startup and `APPIMAGE_EXTRACT_AND_RUN=1` startup both displayed a
+  working demo window and registered the tray on Bazzite/GNOME.
+- The bundled runtime passed the English and German form and D-Bus menu checks.
+- The AppImage read the real BTD 700 status successfully: firmware 3.11.0,
+  Gaming, aptX Adaptive, 24-bit / 48 kHz, audio playing. No device settings changed.
+- Menu installation/removal uses isolated temporary XDG directories. Autostart
+  tests cover persistent AppImage paths/icons, extracted AppDirs and no-FUSE mode.
+- A minimal Ubuntu test container without Python, GTK, libadwaita or libdbusmenu
+  exercises the packaged CLI, SVG decoding, both GUI languages and D-Bus tray
+  controls with simulated hardware. The release workflow repeats these checks.
+
+The unit-test CI workflow runs on Python 3.10 and 3.14, in both languages.
 It does not run real hardware tests or claim that a particular receiver works.
 
 ## Not yet systematically verified
 
 - Hardware writes across different firmware revisions and all individual commands.
 - Real Auracast receiver compatibility, audio quality and reconnect behavior.
-- Other distributions/desktops beyond the tested Bazzite/GNOME setup.
+- Interactive desktops other than Bazzite/GNOME; Ubuntu GUI checks use Xvfb and
+  a private test tray watcher, not a full GNOME or KDE desktop.
 
 `tools/check_hardware.py --run` has not been executed. It deliberately interrupts
 audio, changes settings including the broadcast password, and attempts to restore

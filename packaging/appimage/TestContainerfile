@@ -1,0 +1,7 @@
+# Deliberately no Python, GTK, libadwaita or libdbusmenu installed on this host.
+FROM docker.io/library/ubuntu:24.04
+ENV DEBIAN_FRONTEND=noninteractive
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    xvfb xauth dbus-x11 desktop-file-utils
+WORKDIR /src
+CMD ["dbus-run-session", "--", "xvfb-run", "-a", "bash", "packaging/appimage/check.sh"]

@@ -1,0 +1,11 @@
+[Desktop Entry]
+Type=Application
+Name=BTD 700 Control
+Comment=Linux controls for the Sennheiser BTD 700
+Comment[de]=Linux-Steuerung für den Sennheiser BTD 700
+Exec=btd700-control
+Icon=btd700-control
+Terminal=false
+Categories=AudioVideo;Audio;
+Keywords=Sennheiser;Bluetooth;aptX;Auracast;Dongle;
+StartupWMClass=io.github.btd700linux.Control

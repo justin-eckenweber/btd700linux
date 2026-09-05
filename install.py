@@ -4,7 +4,7 @@ import argparse
 import os
 from pathlib import Path
 from btd700.i18n import tr
-from btd700.integration import APP_ID, autostart_path, desktop_entry
+from btd700.integration import APP_ID, autostart_path, desktop_entry, install_appimage_icon, installed_icon
 
 
 def main():
@@ -16,12 +16,17 @@ def main():
     if args.uninstall:
         destination.unlink(missing_ok=True)
         autostart_path().unlink(missing_ok=True)
-        print(tr('Menüeintrag und Autostart entfernt. Der Projektordner bleibt erhalten.'))
+        installed_icon().unlink(missing_ok=True)
+        print(tr('Menüeintrag und Autostart entfernt. Die Programmdateien bleiben erhalten.'))
         return
     destination.parent.mkdir(parents=True, exist_ok=True)
+    install_appimage_icon()
     destination.write_text(desktop_entry())
     print(tr('Installiert: {path}').format(path=destination))
-    print(tr('Im Anwendungsmenü „BTD 700 Control“ öffnen. Der Projektordner muss erhalten bleiben.'))
+    if os.environ.get('APPIMAGE') and os.environ.get('APPDIR'):
+        print(tr('Im Anwendungsmenü „BTD 700 Control“ öffnen. Die AppImage-Datei muss an diesem Ort bleiben.'))
+    else:
+        print(tr('Im Anwendungsmenü „BTD 700 Control“ öffnen. Der Projektordner muss erhalten bleiben.'))
 
 
 if __name__ == '__main__':

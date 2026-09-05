@@ -32,6 +32,10 @@ def tr(message):
 # German source messages are retained for compatibility with the first release.
 # Keep placeholders identical in both languages; never translate protocol values.
 ENGLISH = {
+    'Menüeintrag und Autostart entfernt. Die Programmdateien bleiben erhalten.':
+        'Removed the launcher and start-at-login entry. The application files are unchanged.',
+    'Im Anwendungsmenü „BTD 700 Control“ öffnen. Die AppImage-Datei muss an diesem Ort bleiben.':
+        'Open BTD 700 Control from the application menu. Keep the AppImage file at this location.',
     'Menüeintrag und Autostart entfernt. Der Projektordner bleibt erhalten.': 'Removed the launcher and start-at-login entry. The project folder is unchanged.',
     'Status aktualisieren': 'Refresh status',
     'App vollständig beenden': 'Quit application',
