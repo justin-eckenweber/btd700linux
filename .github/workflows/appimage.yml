@@ -24,7 +24,9 @@ jobs:
         run: |
           python3 - <<'PY'
           import os, tomllib
+          from btd700 import __version__
           version = tomllib.load(open('pyproject.toml', 'rb'))['project']['version']
+          assert __version__ == version, 'Python package version must match pyproject.toml'
           assert os.environ['RELEASE_TAG'] == 'v' + version, 'Tag must match pyproject.toml'
           PY
       - name: Build isolated Ubuntu runtime and source archives

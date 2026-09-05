@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.3.1 — 2026-09-05
+
+- Synchronize the internal Python package version with the AppImage release.
+- Check both version declarations before publishing future releases.
+
 ## 0.3.0 — 2026-09-05
 
 - Downloadable x86-64 AppImage for glibc 2.39+ desktops, including Python, GTK,

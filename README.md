@@ -72,8 +72,8 @@ It includes Python, GTK, libadwaita and the tray library. Requires **glibc 2.39+
 (for example Ubuntu 24.04 or newer, or the tested Bazzite 44 desktop).
 
 ```bash
-chmod +x BTD_700_Control-0.3.0-x86_64.AppImage
-./BTD_700_Control-0.3.0-x86_64.AppImage
+chmod +x BTD_700_Control-0.3.1-x86_64.AppImage
+./BTD_700_Control-0.3.1-x86_64.AppImage
 ```
 
 Put it in a permanent folder, then optionally run it with `--install-desktop` to
@@ -82,7 +82,7 @@ autostart. Use `--remove-desktop` to remove both entries. Keep the AppImage at t
 same path; after moving it, recreate the menu entry and toggle autostart off/on.
 
 If FUSE is unavailable, start with
-`APPIMAGE_EXTRACT_AND_RUN=1 ./BTD_700_Control-0.3.0-x86_64.AppImage`.
+`APPIMAGE_EXTRACT_AND_RUN=1 ./BTD_700_Control-0.3.1-x86_64.AppImage`.
 See the [AppImage guide](docs/APPIMAGE.md) for permanent extraction, build instructions,
 checksums and dependency sources. USB permissions and the desktop's tray host are
 still required; GNOME needs a StatusNotifier/AppIndicator extension.
@@ -129,7 +129,7 @@ cd btd700linux
 ./run.sh
 ```
 
-Or [download the v0.3.0 source ZIP](https://github.com/justin-eckenweber/btd700linux/archive/refs/tags/v0.3.0.zip),
+Or [download the v0.3.1 source ZIP](https://github.com/justin-eckenweber/btd700linux/archive/refs/tags/v0.3.1.zip),
 extract it, and run `bash run.sh` inside the extracted folder.
 
 Want to explore without touching any hardware?

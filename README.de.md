@@ -36,8 +36,8 @@ Python, GTK, libadwaita und die Tray-Bibliothek sind enthalten. Das Paket ist f�
 **x86-64 mit glibc 2.39 oder neuer**, etwa Ubuntu 24.04+ oder das getestete Bazzite 44.
 
 ```bash
-chmod +x BTD_700_Control-0.3.0-x86_64.AppImage
-./BTD_700_Control-0.3.0-x86_64.AppImage
+chmod +x BTD_700_Control-0.3.1-x86_64.AppImage
+./BTD_700_Control-0.3.1-x86_64.AppImage
 ```
 
 Datei zuerst an ihren dauerhaften Platz legen. Mit `--install-desktop` legst du
@@ -46,7 +46,7 @@ Autostart im Tray. `--remove-desktop` entfernt beide Einträge. Nach Verschieben
 oder Umbenennen der Datei den Menüeintrag neu anlegen und Autostart aus-/einschalten.
 
 Ohne FUSE funktioniert der Start mit
-`APPIMAGE_EXTRACT_AND_RUN=1 ./BTD_700_Control-0.3.0-x86_64.AppImage`.
+`APPIMAGE_EXTRACT_AND_RUN=1 ./BTD_700_Control-0.3.1-x86_64.AppImage`.
 Die [AppImage-Anleitung](docs/APPIMAGE.md) erklärt dauerhaftes Entpacken und eigene
 Builds. Prüfsummen und Bibliotheksquellen liegen beim Release. Die USB-Berechtigung
 und ein Tray-Host bleiben nötig; GNOME benötigt eine StatusNotifier/AppIndicator-Erweiterung.
@@ -58,7 +58,7 @@ git clone https://github.com/justin-eckenweber/btd700linux.git
 cd btd700linux
 ```
 
-Alternativ [Quellcode v0.3.0 als ZIP](https://github.com/justin-eckenweber/btd700linux/archive/refs/tags/v0.3.0.zip)
+Alternativ [Quellcode v0.3.1 als ZIP](https://github.com/justin-eckenweber/btd700linux/archive/refs/tags/v0.3.1.zip)
 entpacken und `bash run.sh` im Projektordner ausführen.
 
 ## Starten

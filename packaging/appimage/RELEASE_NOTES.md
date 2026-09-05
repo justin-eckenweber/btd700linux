@@ -1,10 +1,10 @@
-Download **BTD_700_Control-0.3.0-x86_64.AppImage**, make it executable and open it.
+Download **BTD_700_Control-0.3.1-x86_64.AppImage**, make it executable and open it.
 Python, GTK, libadwaita and the tray library are included. Requires **x86-64 Linux
 with glibc 2.39+** (such as Ubuntu 24.04 or newer). English and German are supported.
 
 ```bash
-chmod +x BTD_700_Control-0.3.0-x86_64.AppImage
-./BTD_700_Control-0.3.0-x86_64.AppImage
+chmod +x BTD_700_Control-0.3.1-x86_64.AppImage
+./BTD_700_Control-0.3.1-x86_64.AppImage
 ```
 
 Optional `--install-desktop` adds an application-menu entry. Keep the file at that

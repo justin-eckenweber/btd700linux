@@ -13,14 +13,14 @@ make it executable, and open it. All regular CLI arguments also work.
 
 ```bash
 chmod +x BTD_700_Control-*-x86_64.AppImage
-./BTD_700_Control-0.3.0-x86_64.AppImage
-./BTD_700_Control-0.3.0-x86_64.AppImage --demo
+./BTD_700_Control-0.3.1-x86_64.AppImage
+./BTD_700_Control-0.3.1-x86_64.AppImage --demo
 ```
 
 Put the file at its permanent location before adding a menu entry:
 
 ```bash
-./BTD_700_Control-0.3.0-x86_64.AppImage --install-desktop
+./BTD_700_Control-0.3.1-x86_64.AppImage --install-desktop
 ```
 
 The menu entry and **Start at login** use the original AppImage path, not its
@@ -31,7 +31,7 @@ menu entry, autostart entry and installed icon. It leaves the AppImage in place.
 If FUSE is unavailable, use the runtime's extraction mode:
 
 ```bash
-APPIMAGE_EXTRACT_AND_RUN=1 ./BTD_700_Control-0.3.0-x86_64.AppImage
+APPIMAGE_EXTRACT_AND_RUN=1 ./BTD_700_Control-0.3.1-x86_64.AppImage
 ```
 
 When installing a menu entry or enabling autostart from this mode, the launcher
